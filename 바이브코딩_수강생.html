@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>바이브코딩 1·2 · 수강 안내</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root {
+  --cream: #FAF8F3;
+  --paper: #FFFFFF;
+  --ink: #0B1F3A;
+  --ink-soft: #2C3E50;
+  --muted: #6E7A89;
+  --line: #E5E1D8;
+  --green: #1A9D5E;
+  --green-soft: #E8F5EE;
+  --danger: #C0392B;
+  --danger-soft: rgba(192, 57, 43, 0.06);
+  --warn: #E67E22;
+  --warn-soft: rgba(230, 126, 34, 0.08);
+  --gold: #C9941F;
+  --gold-soft: #FCF6E5;
+  --vibe: #6C3FF5;
+  --vibe-soft: #F0ECFF;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  background: #1A1A1A;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: rgba(0,0,0,0.1);
+  z-index: 100;
+}
+.progress-bar .progress-fill {
+  height: 100%;
+  background: var(--vibe);
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  width: 0%;
+}
+
+.deck {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--cream);
+  padding: 60px 80px;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+  overflow-y: auto;
+}
+
+.slide.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.nav-btn {
+  position: fixed;
+  bottom: 24px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(11, 31, 58, 0.85);
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  font-family: inherit;
+}
+.nav-btn:hover { background: var(--ink); }
+.nav-btn.prev { left: 24px; }
+.nav-btn.next { right: 90px; }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.slide-counter {
+  position: fixed;
+  bottom: 30px;
+  right: 24px;
+  font-size: 17px;
+  color: rgba(11, 31, 58, 0.6);
+  z-index: 90;
+  letter-spacing: 0.05em;
+  background: var(--cream);
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.menu-btn {
+  position: fixed;
+  top: 16px;
+  right: 24px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(11, 31, 58, 0.85);
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+.menu-btn:hover { background: var(--ink); }
+
+.toc-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 31, 58, 0.95);
+  z-index: 200;
+  padding: 60px 80px;
+  overflow-y: auto;
+  display: none;
+}
+.toc-overlay.open { display: block; }
+.toc-overlay h2 {
+  font-size: 17px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 24px;
+}
+.toc-overlay .toc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.toc-overlay .toc-item {
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.04);
+  border-left: 3px solid rgba(255,255,255,0.2);
+  border-radius: 0 4px 4px 0;
+  color: white;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.toc-overlay .toc-item:hover {
+  background: rgba(255,255,255,0.1);
+  border-left-color: var(--vibe);
+}
+.toc-overlay .toc-num {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+  display: block;
+}
+.toc-overlay .toc-title {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.toc-close-hint {
+  position: fixed;
+  bottom: 24px;
+  left: 80px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.05em;
+}
+
+/* ========= Shared slide styles ========= */
+.slide-eyebrow {
+  font-size: 16px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.slide-title {
+  font-size: clamp(30px, 3.6vw, 46px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.slide-subtitle {
+  font-size: clamp(18px, 1.9vw, 22px);
+  font-weight: 500;
+  color: var(--ink-soft);
+  letter-spacing: -0.01em;
+  margin-bottom: 32px;
+}
+.slide-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ========= Cover ========= */
+.cover-slide { justify-content: center; padding: 80px 100px; }
+.cover-eyebrow {
+  font-size: 17px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vibe);
+  font-weight: 600;
+  margin-bottom: 32px;
+}
+.cover-eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 36px;
+  height: 1.5px;
+  background: var(--vibe);
+  vertical-align: middle;
+  margin-right: 14px;
+  margin-bottom: 4px;
+}
+.cover-title {
+  font-size: clamp(44px, 5.5vw, 76px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+.cover-subtitle {
+  font-size: clamp(18px, 2.1vw, 25px);
+  font-weight: 600;
+  color: var(--ink-soft);
+  letter-spacing: -0.02em;
+  margin-bottom: 36px;
+}
+.cover-en {
+  font-size: 18px;
+  font-style: italic;
+  color: var(--muted);
+  margin-bottom: 80px;
+}
+.cover-meta {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+}
+.cover-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cover-meta-label {
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.cover-meta-value {
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.cover-brand {
+  position: absolute;
+  top: 60px;
+  right: 80px;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  padding: 4px 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+}
+
+/* ========= Big cards (3-col) ========= */
+.bigcards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  flex: 1;
+  align-items: stretch;
+  margin-top: 40px;
+}
+.bigcard {
+  background: var(--paper);
+  border-radius: 8px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  border-top: 5px solid var(--vibe);
+  box-shadow: 0 2px 8px rgba(11,31,58,0.04);
+}
+.bigcard.theme-ink { border-top-color: var(--ink); }
+.bigcard.theme-gold { border-top-color: var(--gold); }
+.bigcard.theme-danger { border-top-color: var(--danger); }
+.bigcard.theme-vibe { border-top-color: var(--vibe); }
+.bigcard-num {
+  font-size: 16px;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.bigcard-headline {
+  font-size: clamp(20px, 1.9vw, 26px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+.bigcard-body {
+  font-size: 17px;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  flex: 1;
+}
+.bigcard-body strong { color: var(--ink); font-weight: 700; }
+.bigcard-footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 15px;
+  color: var(--muted);
+}
+
+/* ========= Compare (2-col) ========= */
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 24px;
+  flex: 1;
+}
+.compare-side {
+  background: var(--paper);
+  border-radius: 8px;
+  padding: 24px 26px;
+  border-top: 4px solid var(--muted);
+  display: flex;
+  flex-direction: column;
+}
+.compare-side.side-new {
+  border-top-color: var(--vibe);
+  background: linear-gradient(180deg, var(--paper) 0%, #F8F6FF 100%);
+}
+.compare-side-label {
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.compare-side-label.new { color: var(--vibe); }
+.compare-side-year {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+.compare-side-year span {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-left: 8px;
+}
+.compare-table {
+  width: 100%;
+  font-size: 15.5px;
+  border-collapse: collapse;
+}
+.compare-table th, .compare-table td {
+  padding: 7px 4px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+.compare-table thead th {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 6px;
+}
+.compare-table tbody td { color: var(--ink-soft); }
+.compare-table tbody td:first-child { font-weight: 600; color: var(--ink); }
+.compare-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.compare-table tfoot td {
+  font-weight: 700;
+  color: var(--ink);
+  border-top: 2px solid var(--ink);
+  border-bottom: none;
+  padding-top: 10px;
+}
+.compare-row-bad { color: var(--danger) !important; font-weight: 600; }
+.compare-row-good { color: var(--green) !important; font-weight: 600; }
+.compare-row-vibe { color: var(--vibe) !important; font-weight: 600; }
+.compare-summary {
+  margin-top: 20px;
+  padding: 14px 18px;
+  background: var(--vibe-soft);
+  border-left: 4px solid var(--vibe);
+  font-size: 15.5px;
+  color: var(--ink);
+  line-height: 1.6;
+  border-radius: 0 4px 4px 0;
+}
+.compare-summary strong { color: var(--vibe); }
+.compare-side.side-old .compare-summary {
+  background: var(--danger-soft);
+  border-left-color: var(--danger);
+}
+.compare-side.side-old .compare-summary strong { color: var(--danger); }
+
+/* ========= Diagnosis panels ========= */
+.diag-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+  margin-top: 24px;
+  flex: 1;
+}
+.diag-panel { display: flex; flex-direction: column; }
+.diag-panel-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--ink);
+}
+.diag-issues {
+  background: var(--paper);
+  border-radius: 6px;
+  padding: 18px 22px;
+  border-left: 4px solid var(--danger);
+  margin-top: 16px;
+}
+.diag-issues h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--danger);
+  margin-bottom: 12px;
+}
+.diag-issues ul { list-style: none; }
+.diag-issues ul li {
+  font-size: 16px;
+  color: var(--ink-soft);
+  padding: 5px 0 5px 18px;
+  position: relative;
+  line-height: 1.55;
+}
+.diag-issues ul li::before {
+  content: "✕";
+  position: absolute;
+  left: 0;
+  color: var(--danger);
+  font-weight: 700;
+}
+.diag-solution {
+  background: var(--vibe-soft);
+  border-left: 4px solid var(--vibe);
+  border-radius: 0 4px 4px 0;
+  padding: 18px 22px;
+  margin-top: 16px;
+}
+.diag-solution h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--vibe);
+  margin-bottom: 10px;
+}
+.diag-solution p {
+  font-size: 16px;
+  color: var(--ink);
+  line-height: 1.6;
+}
+.diag-solution p + p { margin-top: 8px; }
+
+/* ========= Course card layout ========= */
+.coursecard-layout {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 36px;
+  flex: 1;
+  margin-top: 16px;
+}
+.cc-left {
+  background: var(--paper);
+  border-radius: 8px;
+  padding: 28px 30px;
+  display: flex;
+  flex-direction: column;
+}
+.cc-left .cc-tag {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 3px;
+  color: white;
+  margin-bottom: 14px;
+  width: fit-content;
+}
+.cc-left .cc-name {
+  font-size: clamp(24px, 2.5vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.cc-left .cc-jp {
+  font-style: italic;
+  font-size: 15px;
+  color: var(--muted);
+  margin-bottom: 22px;
+}
+.cc-spec-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.cc-spec {
+  padding: 12px 14px;
+  background: var(--cream);
+  border-radius: 4px;
+}
+.cc-spec .cc-spec-label {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.cc-spec .cc-spec-value {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.cc-purpose {
+  background: var(--vibe-soft);
+  border-left: 3px solid var(--vibe);
+  padding: 14px 18px;
+  border-radius: 0 4px 4px 0;
+  margin-top: auto;
+}
+.cc-purpose .cc-purpose-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vibe);
+  margin-bottom: 6px;
+}
+.cc-purpose p {
+  font-size: 15.5px;
+  color: var(--ink);
+  line-height: 1.55;
+}
+.cc-right {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.cc-section {
+  background: var(--paper);
+  border-radius: 6px;
+  padding: 16px 20px;
+  border-left: 3px solid var(--line);
+}
+.cc-section.s-selling { border-left-color: var(--ink); }
+.cc-section.s-target { border-left-color: var(--green); }
+.cc-section.s-warn { border-left-color: var(--danger); background: var(--danger-soft); }
+.cc-section-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.cc-section.s-warn .cc-section-label { color: var(--danger); }
+.cc-section ul { list-style: none; }
+.cc-section ul li {
+  font-size: 15.5px;
+  color: var(--ink-soft);
+  padding: 4px 0 4px 16px;
+  position: relative;
+  line-height: 1.55;
+}
+.cc-section.s-selling ul li::before { content: "▸"; position: absolute; left: 0; color: var(--ink); font-weight: 700; }
+.cc-section.s-target ul li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+.cc-section.s-warn ul li::before { content: "!"; position: absolute; left: 0; color: var(--danger); font-weight: 700; }
+.cc-section ul li strong { color: var(--ink); }
+.cc-results {
+  background: var(--paper);
+  border-radius: 6px;
+  padding: 14px 18px;
+  border: 1px dashed var(--line);
+}
+.cc-results .cc-results-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.cc-results p {
+  font-size: 15.5px;
+  color: var(--ink);
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+/* ========= Curriculum week table ========= */
+.week-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  margin-top: 8px;
+}
+.week-table th {
+  text-align: left;
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 6px 8px;
+  border-bottom: 2px solid var(--ink);
+}
+.week-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.week-table td:first-child {
+  font-weight: 700;
+  color: var(--vibe);
+  white-space: nowrap;
+  width: 70px;
+}
+.week-table td strong { color: var(--ink); }
+
+/* ========= Speech card ========= */
+.speech-banner {
+  background: linear-gradient(135deg, var(--vibe) 0%, #4B27C2 100%);
+  color: white;
+  padding: 22px 32px;
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+.speech-banner .sb-label {
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+.speech-banner .sb-quote {
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+
+.benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  flex: 1;
+  align-content: start;
+}
+.benefit-card {
+  background: var(--paper);
+  border-radius: 8px;
+  padding: 22px 24px;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  border-left: 4px solid var(--vibe);
+}
+.benefit-icon {
+  font-size: 32px;
+  line-height: 1;
+  min-width: 36px;
+}
+.benefit-content { flex: 1; }
+.benefit-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+.benefit-desc {
+  font-size: 15.5px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.benefit-desc strong { color: var(--ink); }
+
+/* ========= Target student ========= */
+.target-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  flex: 1;
+  align-items: stretch;
+  margin-top: 20px;
+}
+.target-card {
+  background: var(--paper);
+  border-radius: 10px;
+  padding: 24px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-top: 4px solid var(--vibe);
+}
+.target-emoji {
+  font-size: 38px;
+  margin-bottom: 14px;
+}
+.target-type {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+.target-desc {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.target-desc strong { color: var(--vibe); }
+
+/* ========= FAQ ========= */
+.faq-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+  margin-top: 16px;
+  flex: 1;
+  align-content: start;
+}
+.faq-card {
+  background: var(--paper);
+  border-radius: 6px;
+  padding: 16px 20px;
+  border-left: 3px solid var(--vibe);
+}
+.faq-q {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+.faq-a {
+  font-size: 15.5px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.faq-a strong { color: var(--ink); }
+
+/* ========= Closing ========= */
+.closing-slide { justify-content: center; text-align: center; align-items: center; }
+.closing-eyebrow {
+  font-size: 16px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vibe);
+  margin-bottom: 28px;
+}
+.closing-title {
+  font-size: clamp(36px, 4.5vw, 58px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 20px;
+  max-width: 880px;
+}
+.closing-subtitle {
+  font-size: clamp(18px, 2vw, 22px);
+  color: var(--ink-soft);
+  line-height: 1.65;
+  max-width: 680px;
+  margin-bottom: 40px;
+}
+.closing-divider {
+  width: 60px;
+  height: 2px;
+  background: var(--vibe);
+  margin: 28px auto;
+}
+.closing-meta {
+  font-size: 17px;
+  color: var(--muted);
+}
+
+/* ========= Print & Mobile ========= */
+@media print {
+  html, body { overflow: visible; background: white; }
+  .slide { position: relative; opacity: 1 !important; pointer-events: auto; page-break-after: always; height: auto; min-height: 100vh; }
+  .nav-btn, .slide-counter, .menu-btn, .progress-bar { display: none; }
+}
+
+@media (max-width: 768px) {
+  body, html { overflow: auto; }
+  .deck { height: auto; }
+  .slide { position: relative; opacity: 1 !important; pointer-events: auto; height: auto; min-height: 100vh; padding: 40px 24px; border-bottom: 8px solid var(--line); }
+  .bigcards-grid, .compare-grid, .diag-grid, .coursecard-layout, .target-grid, .benefit-grid, .faq-grid { grid-template-columns: 1fr; }
+  .nav-btn, .slide-counter, .menu-btn { display: none; }
+  .cover-slide { padding: 60px 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+<button class="menu-btn" id="menu-btn" title="목차 (M)">☰</button>
+<button class="nav-btn prev" id="prev-btn" title="이전 (←)">←</button>
+<button class="nav-btn next" id="next-btn" title="다음 (→)">→</button>
+<div class="slide-counter" id="slide-counter">1 / 9</div>
+
+<div class="toc-overlay" id="toc-overlay">
+  <h2>목차 — Table of Contents</h2>
+  <div class="toc-grid" id="toc-grid"></div>
+  <div class="toc-close-hint">ESC 또는 M 키로 닫기</div>
+</div>
+
+<div class="deck" id="deck">
+
+<section class="slide cover-slide active" data-title="표지">
+  <div class="cover-brand">바이브코딩</div>
+  <div class="cover-eyebrow">Vibe Coding · Course Guide</div>
+  <h1 class="cover-title">바이브코딩 1·2<br>수강 안내</h1>
+  <p class="cover-subtitle">AI와 함께 나만의 웹 포트폴리오 & 디지털 아카이브 갤러리를 직접 만들고 배포합니다</p>
+  <p class="cover-en">"From idea to launch — build your personal web presence with Google AI."</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">과정</span>
+      <span class="cover-meta-value">바이브코딩 1 · 2</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">기간</span>
+      <span class="cover-meta-value">각 4주 (월~목, 주 4회)</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="cover-meta-label">배포</span>
+      <span class="cover-meta-value">GitHub Pages 라이브 도메인</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="바이브코딩이란">
+  <p class="slide-eyebrow">What is Vibe Coding</p>
+  <h1 class="slide-title">바이브코딩에서 얻어가는 3가지</h1>
+  <p class="slide-subtitle">코딩 지식이 없어도, AI와 함께라면 진짜 결과물을 만들 수 있습니다.</p>
+  <div class="bigcards-grid">
+    <div class="bigcard theme-vibe">
+      <div class="bigcard-num">No. 01</div>
+      <div class="bigcard-headline">1주차부터<br>눈에 보이는<br>결과물</div>
+      <div class="bigcard-body">
+        문법을 외우거나 기다릴 필요 없습니다. 학생이 원하는 <strong>"내 웹사이트"</strong>가 수업 첫 날부터 화면에 펼쳐집니다. <strong>AI로 웹 포트폴리오와 아카이브 사이트를 직접 창작하는</strong> 실전 경험을 바로 시작합니다.
+      </div>
+      <div class="bigcard-footer">→ 바이브코딩 1 · 2 커리큘럼에서 자세히</div>
+    </div>
+    <div class="bigcard theme-ink">
+      <div class="bigcard-num">No. 02</div>
+      <div class="bigcard-headline">진입장벽 제로,<br>기본 포트폴리오부터<br>복합 아카이브 갤러리까지</div>
+      <div class="bigcard-body">
+        코딩을 외울 필요 없이 <strong>AI와 협업하여 반응형 개인 웹사이트와 갤러리 콘텐츠를 만듭니다.</strong> 4주 만에 <strong>Google AI Studio와 NanoBanana</strong>를 통해 기본 포트폴리오를 배포하고, 2단계 연계 수강을 통해 나만의 <strong>디지털 아카이브 갤러리</strong>를 완성합니다.
+      </div>
+      <div class="bigcard-footer">→ 커리큘럼 상세에서 확인</div>
+    </div>
+    <div class="bigcard theme-gold">
+      <div class="bigcard-num">No. 03</div>
+      <div class="bigcard-headline">포트폴리오·진로·<br>코드 관리 역량까지<br>연결되는 실무 자산</div>
+      <div class="bigcard-body">
+        수업이 끝나면 손에 남는 것이 있습니다. <strong>AI 프롬프트 엔지니어링, 복합 그리드 시스템, GitHub Pages 웹 호스팅</strong> 등 진로 탐색과 입시 포트폴리오에 즉시 활용 가능한 실력을 쌓습니다.
+      </div>
+      <div class="bigcard-footer">→ 수업의 이득에서 자세히</div>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="slide" data-title="누가 들어야 하나 — 추천 타겟">
+  <p class="slide-eyebrow">Who Should Enroll</p>
+  <h1 class="slide-title">이 수업, 누가 들어야 하나</h1>
+  <p class="slide-subtitle">바이브코딩은 이런 분들에게 특히 잘 맞습니다.</p>
+  <div class="target-grid" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="target-card">
+      <div class="target-emoji">💻</div>
+      <div class="target-type">나만의 웹사이트가 필요한 학생</div>
+      <div class="target-desc">
+        개발·디자인 진로를 고려하며 자신의 프로젝트와 학업 스펙을 담을 <strong>반응형 개인 포트폴리오 사이트</strong>를 구글 AI 기술로 완성하고 GitHub Pages로 배포합니다. 실전 프론트엔드 UI 개발 프로세스를 경험합니다.
+      </div>
+    </div>
+    <div class="target-card">
+      <div class="target-emoji">🙋</div>
+      <div class="target-type">아직 나를 보여줄 공간이 없는 모든 사람</div>
+      <div class="target-desc">
+        전공자가 아니어도 괜찮습니다. 1인 기업·프리랜서·부업의 시대, <strong>나를 빠르게 어필할 링크 하나</strong>가 곧 경쟁력입니다. AI와 함께라면 코딩 지식 없이도 나만의 소개 페이지를 지금 바로 만들 수 있습니다.
+      </div>
+    </div>
+    <div class="target-card">
+      <div class="target-emoji">🖼️</div>
+      <div class="target-type">개인 작업물이 풍부한 학생</div>
+      <div class="target-desc">
+        수행평가 자료, 디지털 일러스트, 소장용 사진, 직접 만든 코드까지 <strong>한눈에 모아 보여주는 맞춤형 갤러리</strong>를 제작합니다. 자신만의 디지털 보관소를 구축합니다.
+      </div>
+    </div>
+    <div class="target-card">
+      <div class="target-emoji">🎨</div>
+      <div class="target-type">예술·테크 융합 관심 학생</div>
+      <div class="target-desc">
+        시각 디자인 감각과 아이디어를 <strong>구글 AI 생태계 및 최신 미디어 기술</strong>에 융합하는 크리에이티브 디렉팅을 경험합니다. 기술적 한계를 뛰어넘는 창작이 가능합니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="바이브코딩 1 — 커리큘럼">
+  <p class="slide-eyebrow">Course No. 01 · 바이브코딩 트랙</p>
+  <div class="coursecard-layout">
+
+    <div class="cc-left">
+      <span class="cc-tag" style="background: var(--vibe);">바이브코딩 1</span>
+      <div class="cc-name">바이브코딩 1</div>
+      <div class="cc-jp">Vibe Coding 1 — AI Web Portfolio Creation</div>
+
+      <div class="cc-spec-grid">
+        <div class="cc-spec">
+          <div class="cc-spec-label">수업 기간</div>
+          <div class="cc-spec-value">4주 (월~목, 주 4회)</div>
+        </div>
+        <div class="cc-spec">
+          <div class="cc-spec-label">수준</div>
+          <div class="cc-spec-value">완전 입문~초급</div>
+        </div>
+        <div class="cc-spec">
+          <div class="cc-spec-label">주요 툴</div>
+          <div class="cc-spec-value">Gemini · NanoBanana · AI Studio</div>
+        </div>
+        <div class="cc-spec">
+          <div class="cc-spec-label">최종 결과물</div>
+          <div class="cc-spec-value">GitHub Pages 기반 포트폴리오 사이트</div>
+        </div>
+      </div>
+
+      <div class="cc-purpose">
+        <div class="cc-purpose-label">🎯 과정 취지</div>
+        <p>AI를 코딩 비서와 디자인 파트너로 활용하여 **자신의 커리어와 프로젝트를 담은 웹 포트폴리오를 직접 기획·제작·배포하는 경험**. 복잡한 백엔드 인프라 장벽 없이 Google AI Studio와 Gemini로 컴포넌트를 조율하고, NanoBanana로 독창적인 비주얼 에셋을 생성하여 GitHub Pages로 라이브 배포합니다.</p>
+      </div>
+    </div>
+
+    <div class="cc-right">
+      <div class="cc-section s-selling">
+        <div class="cc-section-label">📅 주차별 커리큘럼</div>
+        <table class="week-table">
+          <thead>
+            <tr><th>주차</th><th>주요 내용</th><th>학습 목표 (이론 + 실습 융합)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1주차</td>
+              <td>포트폴리오 기획 & 비주얼 에셋 생성</td>
+              <td>Gemini 연동 사이트 컨셉 기획 및 레이아웃 구조 설계 · NanoBanana를 활용한 포트폴리오 무드보드 빌딩 및 고품질 배경/프로필/아이콘 시각 에셋 제작</td>
+            </tr>
+            <tr>
+              <td>2주차</td>
+              <td>AI Studio UI 와이어프레임 설계</td>
+              <td>Google AI Studio의 System Instruction(시스템 지침) 설정을 통한 최적의 코딩 비서 프롬프트 튜닝 · 레이아웃 가이드라인 도출 및 핵심 컴포넌트(Header, Profile) 와이어프레임 빌딩</td>
+            </tr>
+            <tr>
+              <td>3주차</td>
+              <td>멀티모달 컴포넌트 & 인터랙션 구현</td>
+              <td>AI Studio 멀티모달(시각+텍스트) 기능 활용: 레퍼런스 디자인 이미지를 기반으로 클라이언트 사이드 고도화 · 프로젝트 필터링 탭, 다크모드, 부드러운 스크롤 애니메이션 등 인터랙티브 요소 강화</td>
+            </tr>
+            <tr>
+              <td>4주차</td>
+              <td>반응형 웹 최적화 & GitHub Pages 배포</td>
+              <td>모바일/태블릿 디바이스 환경 최적화 미디어쿼리 조율 및 프론트엔드 마스터링 · GitHub 원격 저장소 연동 및 GitHub Pages를 통한 실시간 웹 무료 호스팅 배포</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cc-section s-target">
+        <div class="cc-section-label">👥 추천 타겟</div>
+        <ul>
+          <li>개발/디자인 분야로 진로 서사를 탄탄하게 구축하여 실제 배포된 본인 소유의 포트폴리오 웹사이트가 필요한 학생</li>
+          <li>DB나 서버 같은 백엔드 이론에 막히지 않고, 구글의 강력한 AI 기술과 실제 개발자들의 필수 플랫폼인 GitHub 배포를 경험하고 싶은 학생</li>
+        </ul>
+      </div>
+
+      <div class="cc-results">
+        <div class="cc-results-label">💼 최종 결과물 (학생 손에 남는 것)</div>
+        <p>개인 프로젝트 아카이빙 웹페이지 + 인터랙티브 동적 UI 컴포넌트 + GitHub Pages 라이브 도메인 주소 — <strong>대입 및 수행평가에서 실제 개발 소스코드 유무까지 완벽하게 증명하는 디지털 자산</strong></p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="slide" data-title="바이브코딩 2 — 커리큘럼">
+  <p class="slide-eyebrow">Course No. 02 · 바이브코딩 트랙</p>
+  <div class="coursecard-layout">
+
+    <div class="cc-left">
+      <span class="cc-tag" style="background: #4B27C2;">바이브코딩 2</span>
+      <div class="cc-name">바이브코딩 2</div>
+      <div class="cc-jp">Vibe Coding 2 — AI Project Archive Gallery</div>
+
+      <div class="cc-spec-grid">
+        <div class="cc-spec">
+          <div class="cc-spec-label">수업 기간</div>
+          <div class="cc-spec-value">4주 (월~목, 주 4회)</div>
+        </div>
+        <div class="cc-spec">
+          <div class="cc-spec-label">수준</div>
+          <div class="cc-spec-value">바이브코딩 1 이수자</div>
+        </div>
+        <div class="cc-spec">
+          <div class="cc-spec-label">주요 툴</div>
+          <div class="cc-spec-value">Gemini · NanoBanana · AI Studio</div>
+        </div>
+        <div class="cc-spec">
+          <div class="cc-spec-label">최종 결과물</div>
+          <div class="cc-spec-value">개인 작업물 기록 갤러리 아카이브 사이트</div>
+        </div>
+      </div>
+
+      <div class="cc-purpose">
+        <div class="cc-purpose-label">🎯 과정 취지</div>
+        <p>1단계에서 학습한 구글 AI 빌딩 핵심 스택을 바탕으로 한 단계 더 도약하는 **프론트엔드 인터랙션 고도화 과정**. 별도의 DB 없이 다량의 작업물을 효율적으로 구조화하고, 세련된 복합 그리드 시스템과 입체적인 모달 디테일 뷰를 제어하여 GitHub Pages 환경에서 구동되는 나만의 '디지털 온라인 전시관'을 완공합니다.</p>
+      </div>
+    </div>
+
+    <div class="cc-right">
+      <div class="cc-section s-selling">
+        <div class="cc-section-label">📅 주차별 커리큘럼</div>
+        <table class="week-table">
+          <thead>
+            <tr><th>주차</th><th>주요 내용</th><th>학습 목표 (이론 + 실습 융합)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1주차</td>
+              <td>갤러리 정보 구조(IA) 설계 & 기획</td>
+              <td>자신이 기록할 다양한 창작물/작업물(그림, 소스코드, 문서) 분류 및 기획 · Gemini를 활용하여 다량의 갤러리 콘텐츠를 체계적으로 분류하는 정보 구조화 설계</td>
+            </tr>
+            <tr>
+              <td>2주차</td>
+              <td>AI Studio 활용 복합 그리드 레이아웃</td>
+              <td>Google AI Studio 프롬프트 튜닝을 통해 다양한 비율의 작업물을 감각적으로 자동 정렬하는 CSS Grid 및 Flexbox 레이아웃 설계 · 카테고리별 실시간 프론트엔드 필터링 UI 구현</td>
+            </tr>
+            <tr>
+              <td>3주차</td>
+              <td>인터랙티브 모달(Modal) 뷰 & 애니메이션</td>
+              <td>작업물 카드 클릭 시 부드럽게 나타나는 오버레이 상세 모달(Modal Popup) 컴포넌트 코드 생성 · NanoBanana를 통한 고해상도 썸네일 아트웍 및 플레이스홀더 최적화</td>
+            </tr>
+            <tr>
+              <td>4주차</td>
+              <td>갤러리 렌더링 최적화 & GitHub Pages 배포</td>
+              <td>대량의 이미지 콘텐츠를 매끄럽게 처리하는 이미지 지연 로딩(Lazy Loading) 기술 연동 및 UI 최종 감리 · GitHub Pages 무료 웹 호스팅 최종 업데이트 및 개인 디지털 갤러리 시사회</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cc-section s-target">
+        <div class="cc-section-label">👥 추천 타겟</div>
+        <ul>
+          <li>바이브코딩 1에서 제작한 기본 웹사이트의 구조를 확장하여, 본인의 방대한 수집품이나 학교 작업물을 체계적으로 브랜딩·보관하고 싶은 학생</li>
+          <li>데이터베이스 아키텍처 학습 없이도 오직 똑똑한 프론트엔드 프롬프팅만으로 상용 갤러리 수준의 동적 기능을 완벽하게 마스터하고 싶은 학생</li>
+        </ul>
+      </div>
+
+      <div class="cc-results">
+        <div class="cc-results-label">💼 최종 결과물 (학생 손에 남는 것)</div>
+        <p>복합 카테고리 필터링 갤러리 UI + 디테일 팝업 모달 인터랙션 컴포넌트 + GitHub Pages 배포 도메인 주소 — <strong>자신의 모든 학업/예술적 성과를 누적하여 제출하는 고유한 포트폴리오 웹 아카이브</strong></p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="slide" data-title="이 수업의 이득 — 왜 등록해야 하나">
+  <p class="slide-eyebrow">Why Enroll</p>
+  <h1 class="slide-title">이 수업을 들으면 이런 이득이 있습니다</h1>
+  <p class="slide-subtitle">바이브코딩을 수강하면 실제로 손에 남는 것들입니다.</p>
+  <div class="benefit-grid">
+    <div class="benefit-card">
+      <div class="benefit-icon">⚡</div>
+      <div class="benefit-content">
+        <div class="benefit-title">지루함 없는 즉각적인 아웃풋</div>
+        <div class="benefit-desc">
+          기존 코딩 수업은 문법 규칙이나 인프라 설정 때문에 결과물이 나오기까지 시간이 걸립니다. 바이브코딩은 <strong>1주차부터 웹사이트 비주얼 소스</strong>가 쏟아져 나와 성취감이 빠릅니다.
+        </div>
+      </div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🎨</div>
+      <div class="benefit-content">
+        <div class="benefit-title">수동적 학습에서 '총괄 디렉터' 경험으로</div>
+        <div class="benefit-desc">
+          단순히 강사의 코드를 따라 치는 방식이 아닙니다. 학생이 아이디어를 던지면 AI가 조력자가 되어 <strong>자신의 기획을 고품질 포트폴리오와 미디어로 실현해 내는 리더십 교육</strong>입니다.
+        </div>
+      </div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🤖</div>
+      <div class="benefit-content">
+        <div class="benefit-title">AI 멀티모달 기술의 선제적 마스터</div>
+        <div class="benefit-desc">
+          단순한 챗봇 검색 수준을 뛰어넘어, <strong>구글의 차세대 프롬프트 개발 도구를 유기적으로 연동하고 조율</strong>하는 '멀티모달 프롬프트 오케스트레이션' 능력을 선점하여 미래 경쟁력을 확보합니다.
+        </div>
+      </div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📂</div>
+      <div class="benefit-content">
+        <div class="benefit-title">가장 트렌디한 포트폴리오 내재화</div>
+        <div class="benefit-desc">
+          누구나 제출하는 흔한 과제물이 아닌, <strong>실제 라이브 도메인으로 배포된 개인 웹사이트와 화려한 디지털 아카이브 작품</strong>이 추출되므로 대입 자소서 및 수행평가에서 압도적인 가점을 받습니다.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="slide" data-title="자주 묻는 질문">
+  <p class="slide-eyebrow">FAQ</p>
+  <h1 class="slide-title">자주 묻는 질문</h1>
+  <p class="slide-subtitle">수강 전 궁금하신 것들을 미리 정리했습니다.</p>
+
+  <div class="faq-grid">
+    <div class="faq-card">
+      <div class="faq-q">Q. 바이브코딩 1과 2는 어떻게 다른가요?</div>
+      <div class="faq-a">
+        1단계가 전체적인 레이아웃과 소개를 잡는 '웹 포트폴리오 입문'이라면, 2단계는 수많은 데이터와 이미지를 감각적으로 배치하고 컨트롤하는 <strong>'아카이브 갤러리 심화' 과정</strong>입니다. 동일한 구글 AI 도구를 더 고차원적으로 활용하며 실무 수준의 복합 그리드와 인터랙션을 완성합니다.
+      </div>
+    </div>
+    <div class="faq-card">
+      <div class="faq-q">Q. 갤러리에는 어떤 작업물을 올릴 수 있나요?</div>
+      <div class="faq-a">
+        수행평가 보고서, 직접 그린 디지털 일러스트, 소장 중인 사진, 직접 작성한 코드까지 <strong>종류에 상관없이 모든 창작물을 담을 수 있습니다.</strong> 여기저기 흩어져 있던 소중한 작업물들이 세상에 하나뿐인 온라인 갤러리로 완성됩니다.
+      </div>
+    </div>
+    <div class="faq-card">
+      <div class="faq-q">Q. 왜 GitHub Pages로 배포하나요?</div>
+      <div class="faq-a">
+        GitHub은 전 세계 개발자들이 코드를 저장하고 협업하는 표준 플랫폼입니다. AI로 만든 결과물을 <strong>실제 본인의 GitHub 저장소에 업로드하고 무료로 웹 배포까지 연결</strong>하기 때문에, 입시나 면접에서 포트폴리오의 진정성을 직접 증명할 수 있습니다.
+      </div>
+    </div>
+    <div class="faq-card">
+      <div class="faq-q">Q. 결과물이 입시나 진로에 도움이 되나요?</div>
+      <div class="faq-a">
+        네, 실질적으로 유리합니다. <strong>GitHub Pages로 실제 배포되어 전 세계 어디서나 링크 하나로 접속할 수 있는 디지털 갤러리 포트폴리오</strong>는 자소서와 수행평가, 면접에서 강력한 차별점이 됩니다.
+      </div>
+    </div>
+    <div class="faq-card">
+      <div class="faq-q">Q. AI가 다 만들어주면 내가 배우는 게 있을까요?</div>
+      <div class="faq-a">
+        AI는 기획을 빠르게 실현해주는 조력자입니다. 어떤 구조로 사이트를 구성할지, 어떤 정보를 어떻게 배치할지는 온전히 본인의 몫입니다. 웹의 구성 원리를 함께 익히기 때문에, 수강 후에는 <strong>AI에게 더 정확하게 요청하고 결과물을 빠르게 완성하는 능력</strong>도 자연스럽게 갖추게 됩니다.
+      </div>
+    </div>
+    <div class="faq-card">
+      <div class="faq-q">Q. 수강 순서는 어떻게 되나요?</div>
+      <div class="faq-a">
+        <strong>바이브코딩 1(웹 포트폴리오, 4주 · 월~목)</strong>을 먼저 수강한 후, <strong>바이브코딩 2(아카이브 갤러리, 4주 · 월~목)</strong>로 이어지는 연속 코스를 추천합니다. 1단계에서 다진 기반 위에 2단계가 자연스럽게 확장됩니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide closing-slide" data-title="마무리">
+  <div class="closing-eyebrow">Vibe Coding · New Beginning</div>
+  <h1 class="closing-title">내 손으로 만들고<br>내 이름으로 배포하는 웹</h1>
+  <div class="closing-divider"></div>
+  <p class="closing-subtitle">
+    코딩을 외우지 않아도 됩니다. AI와 함께라면 지금 바로 시작할 수 있습니다.<br>
+    구글 AI로 만든 내 포트폴리오부터 나만의 디지털 아카이브 갤러리까지, 바이브코딩이 여러분의 첫 번째 웹 경험이 되겠습니다.
+  </p>
+  <p class="closing-meta">바이브코딩 1 · 2 수강 안내</p>
+</section>
+
+</div><script>
+(function () {
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  const counter = document.getElementById('slide-counter');
+  const progressFill = document.getElementById('progress-fill');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const menuBtn = document.getElementById('menu-btn');
+  const tocOverlay = document.getElementById('toc-overlay');
+  const tocGrid = document.getElementById('toc-grid');
+  let current = 0;
+
+  counter.textContent = `1 / ${total}`;
+
+  slides.forEach((slide, idx) => {
+    const title = slide.dataset.title || `슬라이드 ${idx + 1}`;
+    const item = document.createElement('div');
+    item.className = 'toc-item';
+    item.innerHTML = `<span class="toc-num">S${String(idx).padStart(2, '0')}</span><div class="toc-title">${title}</div>`;
+    item.addEventListener('click', () => { goTo(idx); closeTOC(); });
+    tocGrid.appendChild(item);
+  });
+
+  function update() {
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    counter.textContent = `${current + 1} / ${total}`;
+    progressFill.style.width = `${((current + 1) / total) * 100}%`;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+  }
+
+  function goTo(idx) {
+    if (idx < 0 || idx >= total) return;
+    current = idx;
+    update();
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+  function openTOC() { tocOverlay.classList.add('open'); }
+  function closeTOC() { tocOverlay.classList.remove('open'); }
+  function toggleTOC() { tocOverlay.classList.contains('open') ? closeTOC() : openTOC(); }
+
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+  menuBtn.addEventListener('click', toggleTOC);
+
+  document.addEventListener('keydown', (e) => {
+    if (window.innerWidth <= 768) return;
+    if (e.key === 'Escape') { closeTOC(); return; }
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault();
+      tocOverlay.classList.contains('open') ? closeTOC() : next();
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault();
+      tocOverlay.classList.contains('open') ? closeTOC() : prev();
+    } else if (e.key === 'm' || e.key === 'M') {
+      toggleTOC();
+    } else if (e.key === 'Home') {
+      goTo(0);
+    } else if (e.key === 'End') {
+      goTo(total - 1);
+    }
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>
